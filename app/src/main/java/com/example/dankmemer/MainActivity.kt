@@ -1,6 +1,7 @@
 package com.example.dankmemer
 
 import android.app.DownloadManager
+import android.content.Intent
 import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -23,6 +24,9 @@ import com.bumptech.glide.request.target.Target
 import com.android.volley.toolbox.Volley.newRequestQueue as volleyNewRequestQueue
 
 class MainActivity : AppCompatActivity() {
+
+
+    var currentImageurl : String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -35,15 +39,15 @@ class MainActivity : AppCompatActivity() {
         val pgbar = findViewById<ProgressBar>(R.id.progressbar)
         pgbar.visibility = View.VISIBLE
         val queue = volleyNewRequestQueue(this)
-        val url = "https://meme-api.herokuapp.com/gimme"
+        currentImageurl = "https://meme-api.herokuapp.com/gimme"
         val imageView = findViewById<ImageView>(R.id.imageView)
 // Request a string response from the provided URL.
         val jsonObjectRequest = JsonObjectRequest(
-            Request.Method.GET, url, null,
+            Request.Method.GET, currentImageurl, null,
             Response.Listener{ response ->
                 // Display the first 500 characters of the response string.
-                val url = response.getString("url")
-                Glide.with(this).load(url).listener(object : RequestListener<Drawable> {
+                val currentImageurl = response.getString("url")
+                Glide.with(this).load(currentImageurl).listener(object : RequestListener<Drawable> {
                     override fun onLoadFailed(
                         e: GlideException?,
                         model: Any?,
@@ -73,7 +77,13 @@ class MainActivity : AppCompatActivity() {
 // Add the request to the RequestQueue.
         queue.add(jsonObjectRequest)
     }
-    fun sharememe(view: android.view.View) {}
+    fun sharememe(view: android.view.View) {
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "text/plain"
+        intent.putExtra(Intent.EXTRA_TEXT,"Hey,Checkout this cool meme I got from Reddit $currentImageurl")
+        val chooser = Intent.createChooser(intent,"Share this meme using...")
+        startActivity(chooser)
+    }
     fun nextmeme(view: android.view.View) {
         loadmeme()
     }
